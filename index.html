@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="format-detection" content="telephone=no">
+<title>平台名称征集</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+ background:#f7f5f2;color:#22201d;line-height:1.65;-webkit-font-smoothing:antialiased;
+ padding:24px 16px 64px;min-height:100vh}
+.wrap{max-width:680px;margin:0 auto}
+.card{background:#fff;border-radius:16px;padding:32px 28px;
+ box-shadow:0 2px 12px rgba(0,0,0,.05),0 12px 32px rgba(0,0,0,.04);border:1px solid #ece8e3}
+.q{font-size:17px;font-weight:600;line-height:1.7;padding:18px 20px;background:#faf8f5;
+ border-left:3px solid #b3261e;border-radius:0 10px 10px 0;margin-bottom:22px}
+label.opt{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1.5px solid #e8e3dc;
+ border-radius:12px;margin-bottom:10px;cursor:pointer;transition:.18s;background:#fff;font-size:16px}
+label.opt:hover{border-color:#c9bfb4;background:#fdfcfa}
+label.opt input{appearance:none;-webkit-appearance:none;width:21px;height:21px;flex:0 0 21px;
+ border:2px solid #cfc7bd;border-radius:50%;transition:.18s;cursor:pointer}
+label.opt input:checked{border-color:#b3261e;border-width:6.5px;background:#fff}
+label.opt.on{border-color:#b3261e;background:#fef8f7;box-shadow:0 0 0 3px rgba(179,38,30,.07)}
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:12px;background:#b3261e;
+ color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-top:20px;transition:.18s;font-family:inherit}
+.btn:hover{background:#961e17}
+.btn:disabled{background:#d9d2ca;color:#98918a;cursor:not-allowed}
+.ok{text-align:center;padding:20px 0}
+.ok .ico{width:56px;height:56px;border-radius:50%;background:#e8f5e9;color:#2e7d32;display:flex;
+ align-items:center;justify-content:center;font-size:30px;margin:0 auto 18px}
+.ok h1{font-size:22px;margin-bottom:8px}
+.ok p{font-size:14px;color:#8a837a}
+.foot{text-align:center;font-size:12px;color:#b0a89f;margin-top:24px;line-height:1.9}
+.err{background:#fdecea;color:#b3261e;border-radius:10px;padding:12px 16px;font-size:14px;margin-top:16px;display:none}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid #f0ece7}
+th{background:#faf8f5;font-weight:600;color:#6b6560;font-size:12px}
+.mono{font-variant-numeric:tabular-nums;color:#8a837a;font-size:12px}
+.bar-row{margin-bottom:18px}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;margin-bottom:7px;gap:10px}
+.bar-num{font-size:13px;color:#8a837a;white-space:nowrap}
+.bar-num b{color:#b3261e;font-size:16px}
+.track{height:9px;background:#f0ece7;border-radius:99px;overflow:hidden}
+.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#d94b3f,#b3261e);transition:width .6s}
+.totalbar{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.stat{flex:1;min-width:100px;background:#faf8f5;border-radius:12px;padding:14px 16px;text-align:center}
+.stat b{display:block;font-size:26px;color:#b3261e;line-height:1.2}
+.stat span{font-size:12px;color:#8a837a}
+.nm{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.nm a,.nm button{padding:8px 16px;border-radius:9px;border:1.5px solid #e0dad2;background:#fff;
+ color:#4a453f;font-size:13px;cursor:pointer;font-family:inherit;text-decoration:none}
+.nm a:hover,.nm button:hover{border-color:#b3261e;color:#b3261e}
+h1{font-size:22px;margin-bottom:10px}
+.sub{font-size:13px;color:#8a837a;margin-bottom:20px}
+.login{display:flex;gap:10px;margin-bottom:16px}
+.login input{flex:1;padding:12px 14px;border:1.5px solid #e0dad2;border-radius:10px;font-size:15px;font-family:inherit}
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600}
+.b-ok{background:#e8f5e9;color:#2e7d32}
+.b-mute{background:#f0ece7;color:#6b6560}
+@media(max-width:480px){.card{padding:24px 18px}.q{font-size:15px;padding:15px 16px}
+ label.opt{font-size:15px;padding:14px 15px;gap:11px}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card" id="card">
+  <div class="q">1. 中科大科学智能物质创制中心-上海电气联合共建平台名称：科学智能物质创制中心__________</div>
+  <form id="f">
+    <label class="opt" onclick="pick(this)"><input type="radio" name="choice" value="0" required><span>能源材料智能创制分中心</span></label>
+    <label class="opt" onclick="pick(this)"><input type="radio" name="choice" value="1" required><span>能源材料智能创制分基地</span></label>
+    <label class="opt" onclick="pick(this)"><input type="radio" name="choice" value="2" required><span>能源材料智能创制联合实验室</span></label>
+    <label class="opt" onclick="pick(this)"><input type="radio" name="choice" value="3" required><span>先进能源材料智能创制分中心</span></label>
+    <label class="opt" onclick="pick(this)"><input type="radio" name="choice" value="4" required><span>先进能源材料智能创制分基地</span></label>
+    <label class="opt" onclick="pick(this)"><input type="radio" name="choice" value="5" required><span>先进能源材料智能创制联合实验室</span></label>
+    <button class="btn" type="submit" id="sb">提交</button>
+  </form>
+  <div class="err" id="err"></div>
+</div></div>
+<div class="foot">上海电气中央研究院 · AI赋能材料研发团队</div>
+
+<script>
+const API = "https://keyvalue.immanuel.co/api/KeyVal";
+const APP = "4rozxugk";        // 云端存储空间
+const GAP = 40;                // 探测空位范围
+
+function localId(){
+  let id = localStorage.getItem("sv_id");
+  if(!id){
+    id = Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-6);
+    localStorage.setItem("sv_id", id);
+  }
+  return id;
+}
+
+async function kvGet(k){
+  try{
+    const r = await fetch(API + "/GetValue/" + APP + "/" + k, {cache:"no-store"});
+    if(!r.ok) return "";
+    let t = await r.text();
+    try{ t = JSON.parse(t); }catch(e){}
+    return (typeof t === "string") ? t : "";
+  }catch(e){ return null; }
+}
+
+async function kvSet(k, v){
+  try{
+    const r = await fetch(API + "/UpdateValue/" + APP + "/" + k + "/" + encodeURIComponent(v),
+                          {method:"POST"});
+    return r.ok;
+  }catch(e){ return false; }
+}
+
+function stamp(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,"0");
+  return d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + p(d.getHours()) + p(d.getMinutes()) + p(d.getSeconds());
+}
+
+function pick(el){
+  document.querySelectorAll("label.opt").forEach(x => x.classList.remove("on"));
+  el.classList.add("on");
+}
+
+function showOk(){
+  document.getElementById("card").innerHTML =
+    '<div class="ok"><div class="ico">✓</div><h1>提交成功</h1>' +
+    '<p>感谢您的参与，选择已记录</p></div>';
+}
+
+document.getElementById("f").addEventListener("submit", async function(e){
+  e.preventDefault();
+  const btn = document.getElementById("sb");
+  const err = document.getElementById("err");
+  err.style.display = "none";
+  const sel = document.querySelector('input[name=choice]:checked');
+  if(!sel){ err.textContent = "请先选择一个方案"; err.style.display = "block"; return; }
+
+  if(localStorage.getItem("sv_done") === "1"){ showOk(); return; }
+
+  btn.disabled = true; btn.textContent = "提交中…";
+  try{
+    const id = localId();
+    let n = parseInt(await kvGet("cnt") || "0", 10);
+    if(isNaN(n) || n < 0) n = 0;
+
+    // 从当前位置向后找空位写入
+    let placed = -1;
+    for(let i = 1; i <= GAP; i++){
+      const slot = "v" + (n + i);
+      const cur = await kvGet(slot);
+      if(cur === ""){                       // 空位
+        const ok = await kvSet(slot, sel.value + "-" + stamp() + "-" + id);
+        if(ok){ placed = n + i; break; }
+      }
+    }
+    if(placed < 0){ throw new Error("写入失败，请稍后重试"); }
+
+    if(placed > n){ await kvSet("cnt", String(placed)); }
+    localStorage.setItem("sv_done", "1");
+    showOk();
+  }catch(ex){
+    btn.disabled = false; btn.textContent = "提交";
+    err.textContent = "提交失败：" + (ex.message || ex) + "，请重试";
+    err.style.display = "block";
+  }
+});
+
+if(localStorage.getItem("sv_done") === "1"){ showOk(); }
+</script>
+</body>
+</html>
