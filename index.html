@@ -76,7 +76,6 @@ h1{font-size:22px;margin-bottom:10px}
   </form>
   <div class="err" id="err"></div>
 </div></div>
-<div class="foot">上海电气中央研究院 · AI赋能材料研发团队</div>
 
 <script>
 const API = "https://keyvalue.immanuel.co/api/KeyVal";
@@ -157,6 +156,7 @@ document.getElementById("f").addEventListener("submit", async function(e){
 
     if(placed > n){ await kvSet("cnt", String(placed)); }
     localStorage.setItem("sv_done", "1");
+    localStorage.setItem("sv_slot", String(placed));
     showOk();
   }catch(ex){
     btn.disabled = false; btn.textContent = "提交";
@@ -165,7 +165,19 @@ document.getElementById("f").addEventListener("submit", async function(e){
   }
 });
 
-if(localStorage.getItem("sv_done") === "1"){ showOk(); }
+// 打开页面时跟云端核对：我的票还在吗？（数据被清空后应允许重新投）
+(async () => {
+  if(localStorage.getItem("sv_done") !== "1") return;
+  const id   = localStorage.getItem("sv_id");
+  const slot = localStorage.getItem("sv_slot");
+  if(id && slot){
+    const v = await kvGet("v" + slot);
+    if(v && v.slice(-id.length) === id){ showOk(); return; }
+  }
+  // 云端已经没有我的票了，清除本地标记，正常显示投票页
+  localStorage.removeItem("sv_done");
+  localStorage.removeItem("sv_slot");
+})();
 </script>
 </body>
 </html>
