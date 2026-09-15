@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>投票后台</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+ background:#f7f5f2;color:#22201d;line-height:1.6;padding:24px 16px 64px;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto}
+.card{background:#fff;border-radius:16px;padding:30px 26px;
+ box-shadow:0 2px 12px rgba(0,0,0,.05);border:1px solid #ece8e3}
+h1{font-size:22px;margin-bottom:8px}
+.sub{font-size:13px;color:#8a837a;margin-bottom:20px}
+.login{display:flex;gap:10px;margin:8px 0 4px;flex-wrap:wrap}
+.login input{flex:1;min-width:180px;padding:12px 14px;border:1.5px solid #e0dad2;border-radius:10px;font-size:15px;font-family:inherit}
+.btn{padding:12px 22px;border:none;border-radius:10px;background:#b3261e;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{background:#961e17}
+.nm{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.nm button{padding:8px 16px;border-radius:9px;border:1.5px solid #e0dad2;background:#fff;
+ color:#4a453f;font-size:13px;cursor:pointer;font-family:inherit}
+.nm button:hover{border-color:#b3261e;color:#b3261e}
+.totalbar{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.stat{flex:1;min-width:100px;background:#faf8f5;border-radius:12px;padding:14px 16px;text-align:center}
+.stat b{display:block;font-size:26px;color:#b3261e;line-height:1.2}
+.stat span{font-size:12px;color:#8a837a}
+.bar-row{margin-bottom:16px}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;margin-bottom:6px;gap:10px}
+.bar-num{font-size:13px;color:#8a837a;white-space:nowrap}
+.bar-num b{color:#b3261e;font-size:16px}
+.track{height:9px;background:#f0ece7;border-radius:99px;overflow:hidden}
+.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#d94b3f,#b3261e);transition:width .6s}
+.top1{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:#b3261e;border-radius:4px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+th,td{padding:9px 10px;text-align:left;border-bottom:1px solid #f0ece7}
+th{background:#faf8f5;font-weight:600;color:#6b6560;font-size:12px}
+tr:hover td{background:#fdfcfa}
+.mono{font-variant-numeric:tabular-nums;color:#8a837a;font-size:12px}
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600}
+.b-ok{background:#e8f5e9;color:#2e7d32}
+.b-mute{background:#f0ece7;color:#6b6560}
+.foot{text-align:center;font-size:12px;color:#b0a89f;margin-top:22px}
+.live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2e7d32;margin-right:6px;animation:bl 1.6s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.25}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card" id="card">
+  <h1>投票后台</h1>
+  <div class="sub">请输入管理密码查看投票结果</div>
+  <div class="login">
+    <input type="password" id="pw" placeholder="管理密码" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="btn" onclick="unlock()">进入</button>
+  </div>
+  <div class="sub" id="msg" style="color:#b3261e;margin-top:12px"></div>
+</div></div>
+
+<script>
+const API = "https://keyvalue.immanuel.co/api/KeyVal";
+const APP = "4rozxugk";
+const PW  = "shdq2026";
+const OPTS = ["能源材料智能创制分中心","能源材料智能创制分基地","能源材料智能创制联合实验室",
+              "先进能源材料智能创制分中心","先进能源材料智能创制分基地","先进能源材料智能创制联合实验室"];
+const MAX_SCAN = 400;
+
+async function kvGet(k){
+  try{
+    const r = await fetch(API + "/GetValue/" + APP + "/" + k, {cache:"no-store"});
+    if(!r.ok) return "";
+    let t = await r.text();
+    try{ t = JSON.parse(t); }catch(e){}
+    return (typeof t === "string") ? t : "";
+  }catch(e){ return ""; }
+}
+
+function unlock(){
+  if(document.getElementById("pw").value === PW){
+    sessionStorage.setItem("sv_ok","1");
+    render();
+  }else{
+    document.getElementById("msg").textContent = "密码不对";
+  }
+}
+
+async function loadVotes(){
+  const out = [];
+  let miss = 0;
+  for(let i = 1; i <= MAX_SCAN; i++){
+    const v = await kvGet("v" + i);
+    if(!v || v === ""){ miss++; if(miss >= 25) break; continue; }
+    miss = 0;
+    const parts = v.split("-");
+    if(parts.length >= 2){
+      out.push({choice: parseInt(parts[0],10), ts: parts[1], id: parts[2] || ""});
+    }
+  }
+  return out;
+}
+
+function fmtTs(t){
+  if(!t || t.length < 12) return t || "-";
+  return t.slice(0,4)+"-"+t.slice(4,6)+"-"+t.slice(6,8)+" "+t.slice(8,10)+":"+t.slice(10,12)+":"+t.slice(12,14);
+}
+
+async function render(){
+  const card = document.getElementById("card");
+  card.innerHTML = '<h1>投票后台</h1><div class="sub"><span class="live"></span>实时数据 · <span id="upd">加载中…</span></div>' +
+    '<div class="nm"><button onclick="render()">手动刷新</button><button onclick="exportCsv()">导出 CSV</button></div>' +
+    '<div id="body"><div class="sub">正在读取云端数据…</div></div>';
+
+  const votes = await loadVotes();
+  const counts = new Array(OPTS.length).fill(0);
+  votes.forEach(v => { if(v.choice >= 0 && v.choice < counts.length) counts[v.choice]++; });
+  const total = votes.length;
+  const maxn = total ? Math.max(...counts) : 0;
+  const uniq = new Set(votes.map(v => v.id)).size;
+
+  let bars = "";
+  OPTS.forEach((o,i) => {
+    const pct = total ? (counts[i]/total*100).toFixed(1) : "0.0";
+    const lead = (counts[i] === maxn && maxn > 0) ? '<span class="top1">当前领先</span>' : "";
+    bars += '<div class="bar-row"><div class="bar-top">' +
+      '<span>' + (i+1) + '. ' + o + lead + '</span>' +
+      '<span class="bar-num"><b>' + counts[i] + '</b> 票 · ' + pct + '%</span></div>' +
+      '<div class="track"><div class="fill" style="width:' + pct + '%"></div></div></div>';
+  });
+
+  let rows = "";
+  votes.slice().reverse().forEach((v,i) => {
+    rows += '<tr><td class="mono">' + (total - i) + '</td>' +
+            '<td class="mono">' + fmtTs(v.ts) + '</td>' +
+            '<td>' + (OPTS[v.choice] || "?") + '</td>' +
+            '<td class="mono">' + (v.id || "").slice(0,8) + '</td>' +
+            '<td><span class="badge b-ok">已记录</span></td></tr>';
+  });
+
+  document.getElementById("body").innerHTML =
+    '<div class="totalbar">' +
+      '<div class="stat"><b>' + total + '</b><span>总票数</span></div>' +
+      '<div class="stat"><b>' + uniq + '</b><span>参与设备数</span></div>' +
+      '<div class="stat"><b>' + OPTS.length + '</b><span>候选方案</span></div>' +
+    '</div>' + bars +
+    '<h1 style="font-size:16px;margin:26px 0 4px">投票记录</h1>' +
+    '<table><tr><th>#</th><th>时间</th><th>选择</th><th>设备标识</th><th>状态</th></tr>' +
+    (rows || '<tr><td colspan="5" style="text-align:center;color:#a89f94;padding:22px">还没有人投票</td></tr>') +
+    '</table>';
+  document.getElementById("upd").textContent = "最后更新 " + new Date().toLocaleTimeString("zh-CN");
+}
+
+function exportCsv(){
+  const card = document.getElementById("body");
+  const rows = [["序号","选择项"]];
+  const trs = document.querySelectorAll("#body table tr");
+  trs.forEach((tr,i) => {
+    if(i === 0) return;
+    const td = tr.querySelectorAll("td");
+    if(td.length >= 3) rows.push([td[0].textContent, td[2].textContent, td[1].textContent]);
+  });
+  let csv = "\ufeff序号,选择项,时间\r\n";
+  rows.slice(1).forEach(r => { csv += r.map(x => '"' + String(x).replace(/"/g,'""') + '"').join(",") + "\r\n"; });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download = "投票结果.csv"; a.click();
+}
+
+if(sessionStorage.getItem("sv_ok") === "1"){ render(); }
+setInterval(() => { if(sessionStorage.getItem("sv_ok") === "1") render(); }, 30000);
+</script>
+</body>
+</html>
