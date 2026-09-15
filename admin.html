@@ -84,16 +84,25 @@ function unlock(){
 }
 
 async function loadVotes(){
+  // 先问计数，再并发批量读，避免逐个串行拖慢
+  let c = parseInt(await kvGet("cnt") || "0", 10);
+  if(isNaN(c) || c < 0) c = 0;
+  const top = Math.min(c + 15, MAX_SCAN);
+  const keys = [];
+  for(let i = 1; i <= top; i++) keys.push("v" + i);
+
   const out = [];
-  let miss = 0;
-  for(let i = 1; i <= MAX_SCAN; i++){
-    const v = await kvGet("v" + i);
-    if(!v || v === ""){ miss++; if(miss >= 25) break; continue; }
-    miss = 0;
-    const parts = v.split("-");
-    if(parts.length >= 2){
-      out.push({choice: parseInt(parts[0],10), ts: parts[1], id: parts[2] || ""});
-    }
+  const BATCH = 15;
+  for(let s = 0; s < keys.length; s += BATCH){
+    const chunk = keys.slice(s, s + BATCH);
+    const vals = await Promise.all(chunk.map(k => kvGet(k)));
+    vals.forEach(v => {
+      if(!v) return;
+      const p = v.split("-");
+      if(p.length >= 2 && !isNaN(parseInt(p[0],10))){
+        out.push({choice: parseInt(p[0],10), ts: p[1], id: p[2] || ""});
+      }
+    });
   }
   return out;
 }
